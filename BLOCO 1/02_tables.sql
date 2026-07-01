@@ -38,11 +38,3 @@ CREATE TABLE Servicos_Parceiros (
     nome_servico VARCHAR(100) NOT NULL,
     FOREIGN KEY (id_parceiro) REFERENCES Parceiros(id_parceiro)
 );
-
-CREATE TABLE Usuario_Interno (
-    id_usuario_interno INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    cargo VARCHAR(100),
-    email_corporativo VARCHAR(255) NOT NULL UNIQUE,
-    nivel_acesso VARCHAR(50) NOT NULL
-);
