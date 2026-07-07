@@ -1,4 +1,4 @@
-use use LuxeVoyage;
+use LuxeVoyage;
 -- =====================================================================
 -- LUXE VOYAGE - INSERTS (PARTE SCHNEIDER) - 200 REGISTROS POR TABELA
 -- Tabelas: Solicitacao_SLA, Cotacao_Personalizadas, Item_Cotacao,
