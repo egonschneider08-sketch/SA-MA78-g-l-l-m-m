@@ -53,6 +53,7 @@ funções que já existiam nos módulos (`criar_x`, `buscar_x_por_id`,
 em `REGISTRO` e delega a renderização.
 
 Se um dia você adicionar uma tabela nova, só precisa:
+
 1. Criar o módulo de CRUD dela (seguindo o padrão das outras).
 2. Cadastrar em `registro.py`.
 
@@ -72,6 +73,7 @@ streamlit run app.py
 
 O `streamlit run app.py` abre automaticamente no navegador
 (`http://localhost:8501`). A navegação lateral tem:
+
 - **Dashboard** — métricas gerais e gráficos
 - **Domínios** — Geografia, Parceiros, Catálogo, Clientes, CRM, Comercial,
   Operacional, Auditoria (cada um com um seletor de tabela e abas de
@@ -82,3 +84,5 @@ O `streamlit run app.py` abre automaticamente no navegador
 
 Configure o `.env` (copie de `.env.example`) com as credenciais do Aiven.
 Esse arquivo nunca vai pro Git (já está no `.gitignore`).
+
+""" Do you want to install the recommended 'Rainbow CSV' extension from mechatroner for avaliacoes_tratado.csv? """
