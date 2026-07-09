@@ -1,5 +1,6 @@
 # ✈️ Luxe Voyage — Sistema de Expansão Nacional
 
+
 > Reestruturação do modelo de dados para operação em escala nacional, 100% remota e digital.
 
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-blue)
