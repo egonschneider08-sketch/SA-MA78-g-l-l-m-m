@@ -18,6 +18,11 @@ CREATE TABLE Cliente (
     id_municipio_origem INT,
     FOREIGN KEY (id_municipio_origem) REFERENCES Municipio(id_municipio)
 );
+ALTER TABLE Cliente
+    ADD COLUMN salt VARCHAR(64),
+    ADD COLUMN senha_hash VARCHAR(255);
+
+
 
 CREATE TABLE Interesses_Cliente (
     id_interesse INT AUTO_INCREMENT PRIMARY KEY,

@@ -46,3 +46,7 @@ CREATE TABLE Usuario_Interno (
     email_corporativo VARCHAR(255) NOT NULL UNIQUE,
     nivel_acesso VARCHAR(50) NOT NULL
 );
+
+ALTER TABLE Usuario_Interno
+    ADD COLUMN salt VARCHAR(64) NOT NULL,
+    ADD COLUMN senha_hash VARCHAR(255) NOT NULL;
