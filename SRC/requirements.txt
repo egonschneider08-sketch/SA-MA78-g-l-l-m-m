@@ -7,3 +7,7 @@ google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
 flask
+fastapi
+uvicorn
+bcrypt
+pyjwt

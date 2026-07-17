@@ -63,6 +63,9 @@ SA-MA78-GLLMM/
 ├── SRC/                    → ponto de entrada do sistema
 │   ├── main.py                  → menu principal (hub: CRUD / site / análise / e-mail)
 │   ├── app.py                    → site Streamlit
+│   ├── api_fastapi.py             → API REST (FastAPI) consumida pelo front React em FRONTEND/src
+│   ├── auth.py                    → autenticação: hash de senha (bcrypt) e tokens (JWT)
+│   ├── criar_senha_usuario.py     → script de terminal para definir/resetar senha de um usuário
 │   ├── main_analise.py           → pipeline de análise de dados
 │   ├── database.py               → conexão com o MySQL (lê credenciais do .env)
 │   ├── utils.py                  → execução de queries (usado por todo o CRUD)
@@ -89,9 +92,13 @@ SA-MA78-GLLMM/
 │       ├── gmail_api.py                 → envio de e-mail via API do Gmail (OAuth 2.0)
 │       └── email_relatorio.py           → monta e dispara o relatório por e-mail
 │
-├── FRONTEND/                → site (Streamlit)
-│   ├── componentes.py            → componentes de UI genéricos (Listar/Criar/Editar/Deletar)
-│   └── paginas/                   → uma página por domínio + Dashboard + Consulta SQL
+├── FRONTEND/                → dois front-ends
+│   ├── componentes.py            → (Streamlit) componentes de UI genéricos (Listar/Criar/Editar/Deletar)
+│   ├── paginas/                   → (Streamlit) uma página por domínio + Dashboard + Consulta SQL
+│   └── src/                       → (React/TanStack Start) app web separado, consome SRC/api_fastapi.py
+│       ├── routes/                     → páginas (home, /auth com login real)
+│       ├── lib/api.ts, lib/auth.ts     → cliente HTTP + sessão de usuário
+│       └── components/                 → UI (shadcn/ui)
 │
 ├── DATA/                    → scripts SQL do banco (DDL e inserts, por bloco de entrega)
 └── DOCS/                    → documentação complementar do projeto
@@ -148,6 +155,72 @@ Auditoria     → Log_Acesso
 ```
 
 Os scripts de criação (`DDL`) e os inserts de exemplo ficam em `DATA/`, organizados por bloco de entrega do projeto.
+
+---
+
+## Front-end web (React) + API (FastAPI)
+
+Além do site em Streamlit (item 2 do menu do `main.py`), o projeto tem um
+segundo front-end, em `FRONTEND/` — um app React (TanStack Start), com
+tela de login já ligada à API. Eles rodam como **dois processos separados**
+que conversam por HTTP:
+
+```
+FRONTEND (React, porta 3000)  ──fetch──►  SRC/api_fastapi.py (porta 8000)
+```
+
+### Rodando os dois em desenvolvimento
+
+**Terminal 1 — API:**
+```bash
+cd SRC
+pip install -r requirements.txt
+uvicorn api_fastapi:app --reload --port 8000
+```
+
+**Terminal 2 — Front-end:**
+```bash
+cd FRONTEND
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Acesse `http://localhost:3000`.
+
+### Autenticação (login)
+
+O login usa a tabela `Usuario_Interno`, agora com um campo de senha
+(hash bcrypt — nunca a senha em texto puro):
+
+1. Rode a migração `DATA/BLOCO 5 - Autenticacao/01_alter_usuario_interno.sql`
+   no seu banco (uma vez só).
+2. Defina uma senha para um usuário já cadastrado:
+   ```bash
+   cd SRC
+   python criar_senha_usuario.py seu.email@luxevoyage.com
+   ```
+3. Faça login em `http://localhost:3000/auth` com esse e-mail e senha.
+
+A API expõe:
+- `POST /api/auth/login` — recebe `{ "email", "senha" }`, devolve um token.
+- `GET /api/auth/me` — devolve os dados do usuário dono do token (via
+  header `Authorization: Bearer <token>`).
+
+### Rumo à produção (ex.: Vercel)
+
+Uma API FastAPI com conexão persistente ao MySQL não roda bem em uma
+plataforma serverless como a Vercel. O caminho recomendado é hospedar o
+**front-end na Vercel** e a **API em um serviço à parte** que suporte
+processo persistente (Railway, Render, Fly.io, uma VPS, etc.), com domínio
+próprio. Nesse cenário:
+
+- No projeto da Vercel, configure a env var `VITE_API_URL` apontando para
+  o domínio público da API.
+- No `.env` da API, defina `ALLOWED_ORIGINS` com o domínio do front na
+  Vercel (em vez de liberar tudo com `*`, que é só para desenvolvimento).
+- Defina também `JWT_SECRET` com um valor próprio e secreto (veja
+  `SRC/.env.example`) — nunca use o valor de exemplo em produção.
 
 ---
 

@@ -5,13 +5,20 @@ Rode a partir da pasta raiz do projeto:
 
     python main.py
 
-Ao rodar, você escolhe entre 3 caminhos (tudo no mesmo arquivo, sem
-precisar lembrar de rodar app.py ou main_analise.py separadamente):
+Ao rodar, você escolhe entre 6 caminhos (tudo no mesmo arquivo, sem
+precisar lembrar de rodar app.py, api_server.py, api_fastapi.py ou
+main_analise.py separadamente):
 
     1. Menu CRUD no terminal (navega pelas 25 tabelas, domínio por domínio)
     2. Site (Streamlit) — abre app.py num processo separado, no navegador
-    3. Pipeline de análise de dados — roda main_analise.py, gera os
+    3. Site (HTML/CSS/JS + Flask) — abre api_server.py, em localhost:5000
+    4. Site (HTML/CSS/JS + FastAPI) — abre api_fastapi.py, em localhost:8000
+       (mesmo front-end do item 3, só que servido por FastAPI+Uvicorn sobre
+       o pool de conexões do database.py — lida melhor com requisições
+       concorrentes que o servidor de desenvolvimento do Flask)
+    5. Pipeline de análise de dados — roda main_analise.py, gera os
        gráficos em saida/graficos/ e os CSVs tratados em saida/dados_tratados/
+    6. Envio de relatório por e-mail (CSV + PNG) ao supervisor
 
 Usa o registro central de tabelas (registro.py) e o utils.execute_query()
 para consultas SQL livres. O mesmo registro também é usado pelo site
@@ -280,6 +287,25 @@ def abrir_site_html():
         print("\nSite encerrado.")
 
 
+def abrir_site_fastapi():
+    """Sobe o mesmo site HTML/CSS/JS, só que servido por FastAPI+Uvicorn (mais rápido sob concorrência, com pool de conexões)."""
+    import subprocess
+    import sys as _sys
+    import webbrowser
+
+    print("\nAbrindo o site em http://localhost:8000 (FastAPI + HTML/CSS/JS)...")
+    print("Documentação interativa em http://localhost:8000/docs")
+    print("Pra fechar o site, volte aqui e pressione Ctrl+C.\n")
+    try:
+        webbrowser.open("http://localhost:8000")
+        subprocess.run([_sys.executable, "-m", "uvicorn", "api_fastapi:app",
+                         "--host", "127.0.0.1", "--port", "8000"])
+    except FileNotFoundError:
+        print("❌ Uvicorn não encontrado. Rode: pip install -r requirements.txt")
+    except KeyboardInterrupt:
+        print("\nSite encerrado.")
+
+
 def rodar_analise():
     """Roda o pipeline de análise de dados (main_analise.py)."""
     try:
@@ -306,8 +332,9 @@ def menu_principal():
         print("  1. Menu CRUD (terminal)")
         print("  2. Abrir site (Streamlit)")
         print("  3. Abrir novo site (HTML/CSS/JS + Flask)")
-        print("  4. Rodar análise de dados (gráficos + CSVs)")
-        print("  5. Enviar relatório por e-mail (CSV + PNG) ao supervisor")
+        print("  4. Abrir novo site (HTML/CSS/JS + FastAPI, mais rápido)")
+        print("  5. Rodar análise de dados (gráficos + CSVs)")
+        print("  6. Enviar relatório por e-mail (CSV + PNG) ao supervisor")
         print("  0. Sair")
         escolha = input("Escolha uma opção: ").strip()
 
@@ -321,9 +348,11 @@ def menu_principal():
         elif escolha == "3":
             abrir_site_html()
         elif escolha == "4":
+            abrir_site_fastapi()
+        elif escolha == "5":
             rodar_analise()
             pausa()
-        elif escolha == "5":
+        elif escolha == "6":
             enviar_relatorio_por_email()
             pausa()
         else:

@@ -56,3 +56,24 @@ def deletar_usuario(id_usuario_interno):
     """Remove um registro de Usuario_Interno pelo id."""
     query = f"DELETE FROM {TABLE} WHERE {PK} = %s"
     return execute_query(query, (id_usuario_interno,), commit=True)
+
+
+# ---------------------------------------------------------------------------
+# Funções específicas de autenticação (login).
+#
+# Ficam separadas do CRUD genérico acima de propósito: senha_hash nunca
+# entra em REGISTRO["CRM"]["Usuario_Interno"]["cols"], então o CRUD
+# genérico da API (criar/listar/atualizar via /api/crm/usuario_interno)
+# nunca lê nem grava esse campo — só as rotas dedicadas de /api/auth/*.
+# ---------------------------------------------------------------------------
+
+def buscar_usuario_por_email(email_corporativo):
+    """Retorna um único registro de Usuario_Interno pelo e-mail, ou None."""
+    query = f"SELECT * FROM {TABLE} WHERE email_corporativo = %s"
+    return execute_query(query, (email_corporativo,), fetch="one")
+
+
+def definir_senha(id_usuario_interno, senha_hash):
+    """Grava (ou substitui) o hash de senha de um usuário já existente."""
+    query = f"UPDATE {TABLE} SET senha_hash = %s WHERE {PK} = %s"
+    return execute_query(query, (senha_hash, id_usuario_interno), commit=True)
